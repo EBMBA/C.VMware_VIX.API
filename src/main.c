@@ -10,7 +10,7 @@ int main(int argc, char * argv[])
 {
 	VixHandle hostHandle = VIX_INVALID_HANDLE;
 	VixHandle jobHandle = VIX_INVALID_HANDLE;
-	int actionOnVM = -1;
+	int firstMenu = -1, secondMenu = -1;
 	VixError err;
 
 	// Check if program have a correct argument 
@@ -49,21 +49,60 @@ int main(int argc, char * argv[])
 	Vix_ReleaseHandle(jobHandle);
 
 	// Menu :
-	while (actionOnVM == -1)
+	while (firstMenu == -1)
 	{
-		printf("Choose an option :\n1. POWER SETTINGS \n : ");
+		printf("Choose an option :\n1. POWER SETTINGS \n \nYOUR CHOICE: ");
 
-		scanf("%d", &actionOnVM);
+		scanf("%d", &firstMenu);
 
-		switch (actionOnVM)
+		switch (firstMenu)
 		{
 		case 1:
-			jobHandle = powerOn(hostHandle, argv[1]);
-			Vix_ReleaseHandle(jobHandle);
-			break;
-		
-		case 2:
+			while (secondMenu == -1)
+			{
+				printf("Choose an option :\n1. POWER ON \n2. POWER OFF \n3. PAUSE \n4. UNPAUSE \n5. RESET \n6. SUSPEND \nYOUR CHOICE: ");
+				scanf("%d", &secondMenu);
+				printf("\n");
 
+				switch (secondMenu)
+				{
+				case 1:
+					jobHandle = powerOn(hostHandle, argv[1]);
+					Vix_ReleaseHandle(jobHandle);
+					break;
+				
+				case 2:
+					printf("WARNING : VMWARE TOOLS HAVE TO BE INSTALLED !\n");
+					jobHandle = powerOff(hostHandle, argv[1]);
+					Vix_ReleaseHandle(jobHandle);
+					break;
+				
+				case 3:
+					jobHandle = pause(hostHandle, argv[1]);
+					Vix_ReleaseHandle(jobHandle);
+					break;
+
+				case 4:
+					jobHandle = unPause(hostHandle, argv[1]);
+					Vix_ReleaseHandle(jobHandle);
+					break;
+
+				case 5:
+					printf("WARNING : The virtual machine will be powered off at the hardware level. Any state of the guest that has not been committed to disk will be lost.\n");
+					jobHandle = reset(hostHandle, argv[1]);
+					Vix_ReleaseHandle(jobHandle);
+					break;
+				
+				case 6:
+					jobHandle = suspend(hostHandle, argv[1]);
+					Vix_ReleaseHandle(jobHandle);
+					break;
+
+				default:
+					break;
+				}
+			}
+			
 			break;
 		
 		default:

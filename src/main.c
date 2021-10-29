@@ -14,6 +14,7 @@
 #include <vmware-vix/vm_basic_types.h>
 
 #include "../include/powerSettings.h"
+#include "../include/vmwareTools.h"
 
 /**
  * @brief MAIN
@@ -67,7 +68,7 @@ int main(int argc, char * argv[])
 	// Menu :
 	while (firstMenu == -1)
 	{
-		printf("Choose an option :\n1. POWER SETTINGS \n \nYOUR CHOICE: ");
+		printf("Choose an option :\n1. POWER SETTINGS \n2. INSTALL VMWARE TOOLS \nYOUR CHOICE: ");
 
 		scanf("%d", &firstMenu);
 
@@ -118,9 +119,11 @@ int main(int argc, char * argv[])
 					break;
 				}
 			}
-			
 			break;
 		
+		case 2:
+			jobHandle = installTools(hostHandle,argv[1]);
+			Vix_ReleaseHandle(jobHandle);
 		default:
 			break;
 		}

@@ -18,6 +18,13 @@
 |MacOS              |:x:                |
 
 ## Functionnality :
--   Menu
--   Documentation can be generate
--   Power Settings
+| Name                                       | State                                           |
+|:------------------------------------------:|:-----------------------------------------------:|
+| Menu                                       | In progress                                     |
+| VMWare Tools                               | Done                                            |
+| VM General Settings                        | To DO                                           |
+| Snapshot Management                        | To DO                                           |                                     
+| Sharefolder                                | To DO                                           |
+| Un/Register VM                             | To DO                                           |
+| Power Settings                             | Done                                            |
+| Run Scripts / Programs in VM               | To DO                                           |

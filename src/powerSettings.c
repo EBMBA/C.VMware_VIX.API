@@ -254,8 +254,6 @@ VixHandle reset(VixHandle hostHandle, char *pathToVMX){
         goto abort;
     }
     
-    Vix_ReleaseHandle(jobHandle);
-
     // Reset part : 
     jobHandle = VixVM_Reset(vmHandle,
                                 VIX_VMPOWEROP_NORMAL,

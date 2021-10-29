@@ -26,6 +26,9 @@ INCLUDE	:= include
 # define lib directory
 LIB		:= lib
 
+# define dioxygen file configuration
+DOXYGENCONF = doxygenFile
+
 ifeq ($(OS),Windows_NT)
 MAIN	:= main.exe
 SOURCEDIRS	:= $(SRC)
@@ -85,7 +88,11 @@ $(MAIN): $(OBJECTS)
 clean:
 	$(RM) $(OUTPUTMAIN)
 	$(RM) $(call FIXPATH,$(OBJECTS))
+	$(RM) -r documentation
 	@echo Cleanup complete!
+
+documentation:
+	-doxygen $(DOXYGENCONF)
 
 run: all
 	./$(OUTPUTMAIN)

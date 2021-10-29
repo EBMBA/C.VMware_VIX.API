@@ -4,10 +4,11 @@
 
 ## Documentation 
 
-| Purpose     |         Command               |
-|:-----------:|:-----------------------------:|
-| To compile  |`make all`                     |
-| To run      |`./output/main /path/to/vm.vmx`|
+| Purpose               |         Command               |
+|:---------------------:|:-----------------------------:|
+| To compile            |`make all`                     |
+| To run                |`./output/main /path/to/vm.vmx`|
+|Generate documentation | `make documentation`          |
 
 # OS Compatibility 
 | Name              | Compatibility     |
@@ -17,5 +18,6 @@
 |MacOS              |:x:                |
 
 ## Functionnality :
-- Menu
-- Power Settings
+-   Menu
+-   Documentation can be generate
+-   Power Settings

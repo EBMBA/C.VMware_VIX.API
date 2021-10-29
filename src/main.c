@@ -1,3 +1,13 @@
+/**
+ * @file main.c
+ * @author Emile METRAL (EBMBA)
+ * @brief Controll your VMWare Worjstation's VM in cmd
+ * @version 0.1
+ * @date 2021-10-29
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <vmware-vix/vix.h>
@@ -5,7 +15,13 @@
 
 #include "../include/powerSettings.h"
 
-
+/**
+ * @brief MAIN
+ * 
+ * @param argc 
+ * @param argv Arguments
+ * @return int 
+ */
 int main(int argc, char * argv[])
 {
 	VixHandle hostHandle = VIX_INVALID_HANDLE;

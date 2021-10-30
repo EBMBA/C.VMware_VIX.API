@@ -23,7 +23,7 @@
 | Menu                                       | In progress                                     |
 | VMWare Tools                               | Done                                            |
 | VM General Settings                        | To DO                                           |
-| Snapshot Management                        | To DO                                           |                                     
+| Snapshots Management                       | In progress                                     |                                     
 | Sharefolder                                | To DO                                           |
 | Un/Register VM                             | To DO                                           |
 | Power Settings                             | Done                                            |

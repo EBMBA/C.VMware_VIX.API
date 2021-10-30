@@ -11,6 +11,58 @@
 #include "../include/powerSettings.h"
 
 /**
+ * @brief Display the VM's power state
+ * 
+ * @param powerState VM's power state 
+ */
+void printPowerState(VixToolsState powerState){
+    switch (powerState)
+    {
+    case 1:
+        printf("VM is powering off\n");
+        break;
+    
+    case 2:
+        printf("VM is off\n");
+        break;
+    
+    case 4:
+        printf("VM is powering on\n");
+        break;
+
+    case 8:
+        printf("VM is on\n");
+        break;
+    
+    case 10:
+        printf("VM is suspending\n");
+        break;
+    
+    case 20:
+        printf("VM is suspended\n");
+        break;
+    
+    case 80:
+        printf("VM is resetting\n");
+        break;
+    
+    case 100:
+        printf("VM is blocked and waiting for user interaction\n");
+        break;
+    
+    case 200:
+        printf("VM is paused\n");
+        break;
+    
+    case 800:
+        printf("VM is resuming\n");
+        break;
+    default:
+        break;
+    }
+}
+
+/**
  * @brief Powers on a virtual machine. 
  * 
  * @param hostHandle Host handle
@@ -20,6 +72,7 @@
 VixHandle powerOn(VixHandle hostHandle, char *pathToVMX){
 	VixHandle jobHandle = VIX_INVALID_HANDLE;
     VixHandle vmHandle = VIX_INVALID_HANDLE;
+    VixToolsState powerState = VIX_POWERSTATE_POWERED_ON; // See : https://www.vmware.com/support/developer/vix-api/vix16_reference/types/VixPowerState.html
 	VixError err = VIX_OK;
 
     jobHandle = VixVM_Open(hostHandle,
@@ -39,6 +92,22 @@ VixHandle powerOn(VixHandle hostHandle, char *pathToVMX){
     
     Vix_ReleaseHandle(jobHandle);
 
+    /// CHECK IF VM IS ALREADY ON
+    err = Vix_GetProperties(vmHandle,
+                             VIX_PROPERTY_VM_POWER_STATE,
+                             &powerState,
+                             VIX_PROPERTY_NONE);
+
+    if (VIX_OK != err || powerState != 8) {
+        // Handle the error...
+        if (powerState != 8)
+        {
+            printPowerState(powerState);
+        }
+        goto abort;     
+    }
+
+    /// POWER ON VM
     jobHandle = VixVM_PowerOn(vmHandle,
                                 VIX_VMPOWEROP_NORMAL, // or VIX_VMPOWEROP_LAUNCH_GUI to launch workstation's GUI 
                                 VIX_INVALID_HANDLE,
@@ -69,6 +138,7 @@ VixHandle powerOn(VixHandle hostHandle, char *pathToVMX){
 VixHandle pause(VixHandle hostHandle, char *pathToVMX){
 	VixHandle jobHandle = VIX_INVALID_HANDLE;
     VixHandle vmHandle = VIX_INVALID_HANDLE;
+    VixToolsState powerState = VIX_POWERSTATE_POWERED_ON; // See : https://www.vmware.com/support/developer/vix-api/vix16_reference/types/VixPowerState.html
 	VixError err = VIX_OK;
 
     jobHandle = VixVM_Open(hostHandle,
@@ -88,6 +158,22 @@ VixHandle pause(VixHandle hostHandle, char *pathToVMX){
     
     Vix_ReleaseHandle(jobHandle);
 
+    /// CHECK IF VM IS ON
+    err = Vix_GetProperties(vmHandle,
+                             VIX_PROPERTY_VM_POWER_STATE,
+                             &powerState,
+                             VIX_PROPERTY_NONE);
+
+    if (VIX_OK != err || powerState != 8) {
+        // Handle the error...
+        if (powerState != 8)
+        {
+            printPowerState(powerState);
+        }
+        goto abort;     
+    }
+
+    /// PAUSE VM
     jobHandle = VixVM_Pause(vmHandle,
                                 0,
                                 VIX_INVALID_HANDLE,
@@ -121,6 +207,7 @@ VixHandle pause(VixHandle hostHandle, char *pathToVMX){
 VixHandle unPause(VixHandle hostHandle, char *pathToVMX){
 	VixHandle jobHandle = VIX_INVALID_HANDLE;
     VixHandle vmHandle = VIX_INVALID_HANDLE;
+    VixToolsState powerState = VIX_POWERSTATE_POWERED_ON; // See : https://www.vmware.com/support/developer/vix-api/vix16_reference/types/VixPowerState.html
 	VixError err = VIX_OK;
 
     jobHandle = VixVM_Open(hostHandle,
@@ -140,6 +227,22 @@ VixHandle unPause(VixHandle hostHandle, char *pathToVMX){
     
     Vix_ReleaseHandle(jobHandle);
 
+    /// CHECK IF VM IS PAUSED
+    err = Vix_GetProperties(vmHandle,
+                             VIX_PROPERTY_VM_POWER_STATE,
+                             &powerState,
+                             VIX_PROPERTY_NONE);
+
+    if (VIX_OK != err || powerState != 200) {
+        // Handle the error...
+        if (powerState != 200)
+        {
+            printPowerState(powerState);
+        }
+        goto abort;     
+    }
+
+    /// UNPAUSE VM
     jobHandle = VixVM_Unpause(vmHandle,
                                 0,
                                 VIX_INVALID_HANDLE,
@@ -172,6 +275,7 @@ VixHandle unPause(VixHandle hostHandle, char *pathToVMX){
 VixHandle powerOff(VixHandle hostHandle, char *pathToVMX){
 	VixHandle jobHandle = VIX_INVALID_HANDLE;
     VixHandle vmHandle = VIX_INVALID_HANDLE;
+    VixToolsState powerState = VIX_POWERSTATE_POWERED_ON; // See : https://www.vmware.com/support/developer/vix-api/vix16_reference/types/VixPowerState.html
 	VixError err = VIX_OK;
 
     jobHandle = VixVM_Open(hostHandle,
@@ -190,6 +294,22 @@ VixHandle powerOff(VixHandle hostHandle, char *pathToVMX){
     }
     
     Vix_ReleaseHandle(jobHandle);
+
+    /// CHECK IF VM IS ON 
+    err = Vix_GetProperties(vmHandle,
+                             VIX_PROPERTY_VM_POWER_STATE,
+                             &powerState,
+                             VIX_PROPERTY_NONE);
+
+    //printf("Error %ld \nPower state : %d\n", err, powerState);
+    if (VIX_OK != err || powerState != 8) {
+        // Handle the error...
+        if (powerState != 8)
+        {
+            printPowerState(powerState);
+        }
+        goto abort;     
+    }
 
     jobHandle = VixVM_PowerOff(vmHandle,
                                 VIX_VMPOWEROP_FROM_GUEST,
@@ -242,16 +362,20 @@ VixHandle reset(VixHandle hostHandle, char *pathToVMX){
     
     Vix_ReleaseHandle(jobHandle);
 
-    // Check if VM is on :
+    /// Check if VM isn't off :
     err = Vix_GetProperties(vmHandle,
                              VIX_PROPERTY_VM_POWER_STATE,
                              &powerState,
                              VIX_PROPERTY_NONE);
 
 
-    if (VIX_OK != err) {
+    if (VIX_OK != err || powerState == 2 ) {
         // Handle the error...
-        goto abort;
+        if (powerState == 2)
+        {
+            printPowerState(powerState);
+        }
+        goto abort;     
     }
     
     // Reset part : 
@@ -306,18 +430,23 @@ VixHandle suspend(VixHandle hostHandle, char *pathToVMX){
     
     Vix_ReleaseHandle(jobHandle);
 
-    // Check if VM is on :
+    /// Check if VM is on :
     err = Vix_GetProperties(vmHandle,
                              VIX_PROPERTY_VM_POWER_STATE,
                              &powerState,
                              VIX_PROPERTY_NONE);
 
 
-    if (VIX_OK != err) {
+    if (VIX_OK != err || powerState != 8) {
         // Handle the error...
-        goto abort;
+        if (powerState != 8)
+        {
+            printPowerState(powerState);
+        }
+        goto abort;     
     }
 
+    /// SUSPEND PART
     jobHandle = VixVM_Suspend(vmHandle,
                                 0,
                                 NULL,

@@ -17,6 +17,13 @@
 #include <stdlib.h>
 
 /**
+ * @brief Display the VM's power state
+ * 
+ * @param powerState VM's power state 
+ */
+void printPowerState(VixToolsState powerState);
+
+/**
  * @brief Powers on a virtual machine. 
  * 
  * @param hostHandle Host handle

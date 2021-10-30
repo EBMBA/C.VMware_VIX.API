@@ -19,6 +19,9 @@ typedef struct
 
 VixHandle createSnapshot(VixHandle hostHandle, char *pathToVMX, Snapshot snapshotParameters);
 
+VixHandle removeSnapshot(VixHandle hostHandle, char *pathToVMX);
+
+VixHandle getSnapshotsList(VixHandle hostHandle, char *pathToVMX);
 
 
 #endif // snapshots_h

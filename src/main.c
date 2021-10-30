@@ -129,7 +129,7 @@ int main(int argc, char * argv[])
 		case 3:
 			while (secondMenu == -1)
 			{
-				printf("Choose an option :\n1. CREATE SNAPSHOT \n2.  \n3.  \n4.  \n5.  \n6.  \nYOUR CHOICE: ");
+				printf("Choose an option :\n1. CREATE SNAPSHOT \n2. REMOVE SNAPSHOT \n3.  \n4.  \n5.  \n6.  \nYOUR CHOICE: ");
 				scanf("%d", &secondMenu);
 				printf("\n");
 
@@ -156,8 +156,7 @@ int main(int argc, char * argv[])
 					break;
 				
 				case 2:
-					printf("WARNING : VMWARE TOOLS HAVE TO BE INSTALLED !\n");
-					jobHandle = powerOff(hostHandle, argv[1]);
+					jobHandle = getSnapshotsList(hostHandle, argv[1]);
 					Vix_ReleaseHandle(jobHandle);
 					break;
 				

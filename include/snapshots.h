@@ -11,10 +11,16 @@
 #define MAX_SIZE_DESCRIPTION 1000
 #define DEFAULT_SNAPSHOT_HEAP_SIZE 100
 
+/**
+ * @brief Each snapshot have a name and a description (null or not)
+ * 
+ */
 typedef struct 
 {
     char *name;
     char *description;
+    int indexFirstChild;
+    int numChild;
 } Snapshot;
 
 typedef struct 

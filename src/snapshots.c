@@ -32,7 +32,6 @@ int initSnapshotHeap(SnapshotHeap snapshotHeap)
             isAllocated = 1;
             break;
         }
-        
     }
 
     return isAllocated;
@@ -131,17 +130,22 @@ VixHandle getSnapshotsList(VixHandle hostHandle, char *pathToVMX)
     VixHandle vmHandle = VIX_INVALID_HANDLE;
     VixHandle snapshotHandle = VIX_INVALID_HANDLE;
     VixHandle parentSnapshotHandle = VIX_INVALID_HANDLE;
+    VixHandle childSnapshotHandle = VIX_INVALID_HANDLE;
     VixError err = VIX_OK;
-    char *snapshotName = NULL;
-    char *snapshotDescription = NULL;
-    Snapshot snapshot;
+    // char *snapshotName = NULL;
+    // char *snapshotDescription = NULL;
+    // Snapshot snapshot;
 
-    int isAllocated = allocSnapshot(snapshot);
+    // int isAllocated = allocSnapshot(snapshot);
 
-    if (isAllocated == 1)
-    {
-        goto abort;
-    }
+    // if (isAllocated == 1)
+    // {
+    //     goto abort;
+    // }
+
+    SnapshotHeap snapshotHeap;
+
+    initSnapshotHeap(snapshotHeap);
 
     int numRootSnapshots = 0;
     int numChildSnapshots = 0;
@@ -165,7 +169,7 @@ VixHandle getSnapshotsList(VixHandle hostHandle, char *pathToVMX)
 
     Vix_ReleaseHandle(jobHandle);
 
-    /*err = VixVM_GetNumRootSnapshots(vmHandle, &numRootSnapshots);
+    err = VixVM_GetNumRootSnapshots(vmHandle, &numRootSnapshots);
     printf("Num of Snapshot : %d\n", numRootSnapshots);
     if (VIX_OK != err)
     {
@@ -173,10 +177,10 @@ VixHandle getSnapshotsList(VixHandle hostHandle, char *pathToVMX)
         goto abort;
     }
 
-    for (int index = 0; index < numRootSnapshots; index++)
+    for (int indexRoot = 0; indexRoot < numRootSnapshots; indexRoot++)
     {
         err = VixVM_GetRootSnapshot(vmHandle,
-                                    index,
+                                    indexRoot,
                                     &snapshotHandle);
         if (VIX_OK != err)
         {
@@ -186,84 +190,134 @@ VixHandle getSnapshotsList(VixHandle hostHandle, char *pathToVMX)
 
         err = Vix_GetProperties(snapshotHandle,
                                 VIX_PROPERTY_SNAPSHOT_DISPLAYNAME,
-                                &snapshotName,
+                                &snapshotHeap.data[indexRoot].name,
                                 VIX_PROPERTY_SNAPSHOT_DESCRIPTION,
-                                &snapshotDescription,
+                                &snapshotHeap.data[indexRoot].description,
                                 VIX_PROPERTY_NONE);
         if (VIX_OK != err)
         {
             // Handle the error...
             goto abort;
         }
-        printf("%d snapshot name is %s and description is %s\n", index, snapshotName, snapshotDescription);
+        // Increment index 
+        snapshotHeap.index ++;
 
-        err = VixSnapshot_GetNumChildren(snapshotHandle, &numChildSnapshots);
-        printf("the snapshot has %d child snapshots\n", numChildSnapshots);
+        printf("%d snapshot name is %s and description is %s\n", indexRoot, snapshotHeap.data[indexRoot].name, snapshotHeap.data[indexRoot].description);
+
+        err = VixSnapshot_GetNumChildren(snapshotHandle, &snapshotHeap.data[indexRoot].numChild);
+
         if (VIX_OK != err)
         {
             // Handle the error...
             goto abort;
         }
-    }
-    */
-    /// Current snapshots :
-    err = VixVM_GetCurrentSnapshot(vmHandle,
-                                   &snapshotHandle);
-    if (VIX_OK != err)
-    {
-        // Handle the error...
-        goto abort;
-    }
-
-    err = Vix_GetProperties(snapshotHandle,
-                            VIX_PROPERTY_SNAPSHOT_DISPLAYNAME,
-                            &snapshot.name,
-                            VIX_PROPERTY_SNAPSHOT_DESCRIPTION,
-                            &snapshot.description,
-                            VIX_PROPERTY_NONE);
-    if (VIX_OK != err)
-    {
-        // Handle the error...
-        goto abort;
-    }
-    printf("%d. Current snapshot name is %s and description is %s\n", numParentSnapshots, snapshot.name, snapshot.description);
-
-    err = VixSnapshot_GetParent(snapshotHandle,
-                                &parentSnapshotHandle);
-
-    if (VIX_OK != err)
-    {
-        // Handle the error...
-        printf("No parents snapshot\n");
-        goto abort;
-    }
-
-    while (VIX_OK == err)
-    {
-        err = Vix_GetProperties(parentSnapshotHandle,
-                                VIX_PROPERTY_SNAPSHOT_DISPLAYNAME,
-                                &snapshotName,
-                                VIX_PROPERTY_SNAPSHOT_DESCRIPTION,
-                                &snapshotDescription,
-                                VIX_PROPERTY_NONE);
-        if (VIX_OK != err)
+        printf("the snapshot has %d child(ren) snapshot(s)\n", snapshotHeap.data[indexRoot].numChild);
+        
+        // first child is 
+        if (indexRoot == 0)
         {
-            // Handle the error...
-            goto abort;
+            snapshotHeap.data[indexRoot].indexFirstChild = numRootSnapshots;
         }
-        numParentSnapshots++;
-        printf("%d. Snapshot name is %s and description is %s\n", numParentSnapshots, snapshotName, snapshotDescription);
-        snapshotHandle = parentSnapshotHandle;
-        err = VixSnapshot_GetParent(snapshotHandle,
-                                    &parentSnapshotHandle);
+        else{
+            snapshotHeap.data[indexRoot].indexFirstChild = numRootSnapshots + snapshotHeap.data[indexRoot-1].numChild ;
+        }
+        
+
+        // Store all children
+        for (int indexChildren = 0; indexChildren < snapshotHeap.data[indexRoot].numChild; indexChildren++)
+        {
+            err = VixSnapshot_GetChild(snapshotHandle, indexChildren, &childSnapshotHandle);
+            if (VIX_OK != err)
+            {
+                // Handle the error...
+                goto abort;
+            }
+
+            // Write information on snapshot in (index of current child + index of root + num of root) index
+            //int indexWriteInformation = indexChildren + indexRoot + numRootSnapshots ;
+            // Or just index of the current child + index of the first children :
+            int indexWriteInformation = indexChildren + snapshotHeap.data[indexRoot].indexFirstChild;
+
+            err = Vix_GetProperties(childSnapshotHandle,
+                                    VIX_PROPERTY_SNAPSHOT_DISPLAYNAME,
+                                    &snapshotHeap.data[indexWriteInformation].name,
+                                    VIX_PROPERTY_SNAPSHOT_DESCRIPTION,
+                                    &snapshotHeap.data[indexWriteInformation].description,
+                                    VIX_PROPERTY_NONE);
+            if (VIX_OK != err)
+            {
+                // Handle the error...
+                goto abort;
+            }
+            // Increment index
+            snapshotHeap.index ++;
+            
+            printf("%d snapshot name is %s and description is %s\n", indexWriteInformation, snapshotHeap.data[indexWriteInformation].name, snapshotHeap.data[indexWriteInformation].description);
+        }
+
+        // Free snapshot handle to the next root 
+        Vix_ReleaseHandle(snapshotHandle);
     }
+
+    // /// Current snapshots :
+    // err = VixVM_GetCurrentSnapshot(vmHandle,
+    //                                &snapshotHandle);
+    // if (VIX_OK != err)
+    // {
+    //     // Handle the error...
+    //     goto abort;
+    // }
+
+    // err = Vix_GetProperties(snapshotHandle,
+    //                         VIX_PROPERTY_SNAPSHOT_DISPLAYNAME,
+    //                         &snapshot.name,
+    //                         VIX_PROPERTY_SNAPSHOT_DESCRIPTION,
+    //                         &snapshot.description,
+    //                         VIX_PROPERTY_NONE);
+    // if (VIX_OK != err)
+    // {
+    //     // Handle the error...
+    //     goto abort;
+    // }
+    // printf("%d. Current snapshot name is %s and description is %s\n", numParentSnapshots, snapshot.name, snapshot.description);
+
+    // err = VixSnapshot_GetParent(snapshotHandle,
+    //                             &parentSnapshotHandle);
+
+    // if (VIX_OK != err)
+    // {
+    //     // Handle the error...
+    //     printf("No parents snapshot\n");
+    //     goto abort;
+    // }
+
+    // while (VIX_OK == err)
+    // {
+    //     err = Vix_GetProperties(parentSnapshotHandle,
+    //                             VIX_PROPERTY_SNAPSHOT_DISPLAYNAME,
+    //                             &snapshotName,
+    //                             VIX_PROPERTY_SNAPSHOT_DESCRIPTION,
+    //                             &snapshotDescription,
+    //                             VIX_PROPERTY_NONE);
+    //     if (VIX_OK != err)
+    //     {
+    //         // Handle the error...
+    //         goto abort;
+    //     }
+    //     numParentSnapshots++;
+    //     printf("%d. Snapshot name is %s and description is %s\n", numParentSnapshots, snapshotName, snapshotDescription);
+    //     snapshotHandle = parentSnapshotHandle;
+    //     err = VixSnapshot_GetParent(snapshotHandle,
+    //                                 &parentSnapshotHandle);
+    // }
 
 abort:
     Vix_ReleaseHandle(jobHandle);
     Vix_ReleaseHandle(snapshotHandle);
     Vix_ReleaseHandle(vmHandle);
-    VixHost_Disconnect(hostHandle);
-    Vix_FreeBuffer(snapshotName);
+    Vix_ReleaseHandle(childSnapshotHandle);
+    //VixHost_Disconnect(hostHandle);
+    //Vix_FreeBuffer(snapshotName);
 
     return snapshotHandle;
 }

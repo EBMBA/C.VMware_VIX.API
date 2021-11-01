@@ -161,14 +161,14 @@ int main(int argc, char * argv[])
 					break;
 				
 				case 2:
-					SnapshotHeap snapshotHeap;
-					int isAllocated = initSnapshotHeap(snapshotHeap);
+					// SnapshotHeap snapshotHeap;
+					// int isAllocated = initSnapshotHeap(snapshotHeap);
 
-					if (isAllocated == 1){
-						goto abort;
-					}
-					// jobHandle = getSnapshotsList(hostHandle, argv[1]);
-					// Vix_ReleaseHandle(jobHandle);
+					// if (isAllocated == 1){
+					// 	goto abort;
+					// }
+					jobHandle = getSnapshotsList(hostHandle, argv[1]);
+					Vix_ReleaseHandle(jobHandle);
 					break;
 				
 				case 3:

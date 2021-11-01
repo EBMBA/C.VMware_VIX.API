@@ -138,6 +138,11 @@ int main(int argc, char * argv[])
 				case 1:
 
 					Snapshot snapshotParameters;
+					int isAllocated = allocSnapshot(snapshotParameters);
+
+					if (isAllocated == 1){
+						goto abort;
+					}
 
 					// To solve the problem when using scanf before fgets (src: https://www.go4expert.com/articles/solution-using-scanf-fgets-c-t27148/)
 					getchar();
@@ -156,8 +161,14 @@ int main(int argc, char * argv[])
 					break;
 				
 				case 2:
-					jobHandle = getSnapshotsList(hostHandle, argv[1]);
-					Vix_ReleaseHandle(jobHandle);
+					SnapshotHeap snapshotHeap;
+					int isAllocated = initSnapshotHeap(snapshotHeap);
+
+					if (isAllocated == 1){
+						goto abort;
+					}
+					// jobHandle = getSnapshotsList(hostHandle, argv[1]);
+					// Vix_ReleaseHandle(jobHandle);
 					break;
 				
 				case 3:

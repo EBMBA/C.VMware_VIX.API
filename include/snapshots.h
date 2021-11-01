@@ -9,13 +9,35 @@
 
 #define MAX_SIZE_NAME 100
 #define MAX_SIZE_DESCRIPTION 1000
+#define DEFAULT_SNAPSHOT_HEAP_SIZE 100
 
 typedef struct 
 {
-    char name[MAX_SIZE_NAME];
-    char description[MAX_SIZE_DESCRIPTION];
+    char *name;
+    char *description;
 } Snapshot;
 
+typedef struct 
+{
+    Snapshot data[DEFAULT_SNAPSHOT_HEAP_SIZE];
+    int index;
+}SnapshotHeap; 
+
+/**
+ * @brief Initialise a snapshot heap
+ * 
+ * @param snapshotHeap 
+ * @return int 0 to succes or 1 for an error  
+ */
+int initSnapshotHeap(SnapshotHeap snapshotHeap);
+
+/**
+ * @brief Memory allocation for Snapshot variable 
+ * 
+ * @param snapshot 
+ * @return int 0 to succes or 1 for an error  
+ */
+int allocSnapshot(Snapshot snapshot);
 
 VixHandle createSnapshot(VixHandle hostHandle, char *pathToVMX, Snapshot snapshotParameters);
 
